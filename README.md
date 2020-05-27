@@ -1,4 +1,4 @@
-# Gearhead: A motorbike performance analasys tool
+# Gearhead: A motorbike performance analysis tool
 
 Project Gearhead started with the following question: "How much time will I gain in acceleration if I change my motorcycle sprockets?"
 

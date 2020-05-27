@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 /// Motorbike gearing model
 class BikeModel extends ChangeNotifier {
