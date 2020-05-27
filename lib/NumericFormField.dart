@@ -13,8 +13,8 @@ class IntFormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      decoration: this.decoration,
-      keyboardType: TextInputType.numberWithOptions(decimal: true),
+      decoration: decoration,
+      keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
       onChanged: onChangedWrapper,
       initialValue: initialValue,
       inputFormatters: [
@@ -37,8 +37,8 @@ class DoubleFormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      decoration: this.decoration,
-      keyboardType: TextInputType.numberWithOptions(decimal: true),
+      decoration: decoration,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
       onChanged: onChangedWrapper,
       initialValue: initialValue,
       inputFormatters: [
