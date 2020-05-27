@@ -1,16 +1,13 @@
-# gearhead
+# Gearhead: A motorbike performance analasys tool
 
-A new Flutter project.
+Project Gearhead started with the following question: "How much time will I gain in acceleration if I change my motorcycle sprockets?"
 
-## Getting Started
+This was enough for my friend Jesus Medina Mundt - Industrial  Engineer -, to open Excel and throw some math at it. After a couple iterations he had some really cool info there and I thought we could make an app out of it, took the opportunity to also learn a new SDK in the process.
 
-This project is a starting point for a Flutter application.
+**Status:** Lots of features still need to be developed
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+Credits:
+- Jesus Medina Mundt | Math guy | [LinkedIn](https://linkedin.com/in/jes%C3%BAs-medina-mundt-13b06a3a/)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
