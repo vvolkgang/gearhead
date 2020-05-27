@@ -49,23 +49,17 @@ class BikeModel extends ChangeNotifier {
   double get rollResistanceForce => totalWeight * _rollResistance * _gravity;
   //double get maxAcceleration => 
 
-  /// Gearing setter
   void setGearing(int gear, double gearing) {
-    //TODO check params limits
     _gearing[gear] = gearing;
     notifyListeners();
   }
 
-  /// Front Sprocket Teeth setter
   set frontSprocketTeeth(int frontSprocket) {
-    //TODO check params limits
     _frontSprocketTeeth = frontSprocket;
     notifyListeners();
   }
 
-  /// Rear Sprocket Teeth setter
   set rearSprocketTeeth(int rearSprocket) {
-    //TODO check params limits
     _rearSprocketTeeth = rearSprocket;
     notifyListeners();
   }
