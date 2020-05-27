@@ -96,6 +96,10 @@ class _MyHomePageState extends State<MyHomePage> {
               Text('4th: ${bikeModel.getMaxSpeedForGear(4)}'),
               Text('5th: ${bikeModel.getMaxSpeedForGear(5)}'),
               Text('6th: ${bikeModel.getMaxSpeedForGear(6)}'),
+              Padding(
+                    padding: const EdgeInsets.only(bottom: 200),
+                    
+                  ),
             ],
           ),
         ),
