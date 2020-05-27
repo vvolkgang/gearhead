@@ -1,7 +1,9 @@
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'BikeModel.dart';
+import 'NumericFormField.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,13 +15,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(primarySwatch: Colors.deepPurple, visualDensity: VisualDensity.adaptivePlatformDensity, brightness: Brightness.dark),
-      home: ChangeNotifierProvider<BikeModel>(create: (context) => BikeModel(), child: MyHomePage(title: 'Gear Head')),
+      home: ChangeNotifierProvider<BikeModel>(create: (context) => BikeModel(), child: const MyHomePage(title: 'Gear Head')),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  const MyHomePage({Key key, this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -37,22 +39,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    var bikeModel = Provider.of<BikeModel>(context, listen: true);
+    final bikeModel = Provider.of<BikeModel>(context, listen: true);
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -97,8 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
               Text(
                 'Roll Resistance coeff.: ${bikeModel.rollResistanceForce}',
               ),
-              Divider(),
-              Text(
+              const Divider(),
+              const Text(
                 'Max Speed (km/h):',
               ),
               Text('1st: ${bikeModel.getMaxSpeedForGear(1)}'),
@@ -107,7 +96,6 @@ class _MyHomePageState extends State<MyHomePage> {
               Text('4th: ${bikeModel.getMaxSpeedForGear(4)}'),
               Text('5th: ${bikeModel.getMaxSpeedForGear(5)}'),
               Text('6th: ${bikeModel.getMaxSpeedForGear(6)}'),
-
             ],
           ),
         ),
@@ -135,13 +123,13 @@ class GearboxRatiosCard extends StatelessWidget {
                   tapBodyToCollapse: true,
                 ),
                 header: Padding(
-                    padding: EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(10),
                     child: Text(
-                      "Gearbox Ratios",
-                      style: Theme.of(context).textTheme.body2,
+                      'Gearbox Ratios',
+                      style: Theme.of(context).textTheme.bodyText1,
                     )),
-                collapsed: Text(
-                  "Final Drive: ...",
+                collapsed: const Text(
+                  'Final Drive: ...',
                   softWrap: true,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -150,52 +138,52 @@ class GearboxRatiosCard extends StatelessWidget {
                   builder: (context, bikeModel, child) => Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      TextFormField(
+                      DoubleFormField(
                         initialValue: '${bikeModel.getGearing(0)}',
                         onChanged: (value) => bikeModel.setGearing(0, value),
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Primary',
                         ),
                       ),
-                      TextFormField(
+                      DoubleFormField(
                         initialValue: '${bikeModel.getGearing(1)}',
                         onChanged: (value) => bikeModel.setGearing(1, value),
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: '1',
                         ),
                       ),
-                      TextFormField(
+                      DoubleFormField(
                         initialValue: '${bikeModel.getGearing(2)}',
                         onChanged: (value) => bikeModel.setGearing(2, value),
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: '2',
                         ),
                       ),
-                      TextFormField(
+                      DoubleFormField(
                         initialValue: '${bikeModel.getGearing(3)}',
                         onChanged: (value) => bikeModel.setGearing(3, value),
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: '3',
                         ),
                       ),
-                      TextFormField(
+                      DoubleFormField(
                         initialValue: '${bikeModel.getGearing(4)}',
                         onChanged: (value) => bikeModel.setGearing(4, value),
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: '4',
                         ),
                       ),
-                      TextFormField(
+                      DoubleFormField(
                         initialValue: '${bikeModel.getGearing(5)}',
                         onChanged: (value) => bikeModel.setGearing(5, value),
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: '5',
                         ),
                       ),
-                      TextFormField(
+                      DoubleFormField(
                         initialValue: '${bikeModel.getGearing(6)}',
                         onChanged: (value) => bikeModel.setGearing(6, value),
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: '6',
                         ),
                       ),
@@ -204,7 +192,7 @@ class GearboxRatiosCard extends StatelessWidget {
                 ),
                 builder: (_, collapsed, expanded) {
                   return Padding(
-                    padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+                    padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
                     child: Expandable(
                       collapsed: collapsed,
                       expanded: expanded,
@@ -243,23 +231,23 @@ class SprocketsCard extends StatelessWidget {
                     padding: const EdgeInsets.all(10),
                     child: Text(
                       'Sprockets',
-                      style: Theme.of(context).textTheme.body2,
+                      style: Theme.of(context).textTheme.bodyText1,
                     )),
                 expanded: Consumer<BikeModel>(
                   builder: (context, bikeModel, child) => Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      TextFormField(
-                        onChanged: (value) => bikeModel.setFrontSprocketTeeth(value),
+                      IntFormField(
+                        onChanged: (value) => bikeModel.frontSprocketTeeth = value,
                         initialValue: '${bikeModel.frontSprocketTeeth}',
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Front Sprocket',
                         ),
                       ),
-                      TextFormField(
-                        onChanged: (value) => bikeModel.setRearSprocketTeeth(value),
+                      IntFormField(
+                        onChanged: (value) => bikeModel.rearSprocketTeeth = value,
                         initialValue: '${bikeModel.rearSprocketTeeth}',
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Rear Sprocket',
                         ),
                       ),
@@ -313,24 +301,24 @@ class RearWheelCard extends StatelessWidget {
                   builder: (context, bikeModel, child) => Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      TextFormField(
+                      IntFormField(
                         onChanged: (value) => bikeModel.rimSize = value,
                         initialValue: '${bikeModel.rimSize}',
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Rim size (inch)',
                         ),
                       ),
-                      TextFormField(
+                      IntFormField(
                         onChanged: (value) => bikeModel.tireWidth = value,
                         initialValue: '${bikeModel.tireWidth}',
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Tire Width (mm)',
                         ),
                       ),
-                      TextFormField(
+                      IntFormField(
                         onChanged: (value) => bikeModel.tireAspectRation = value,
                         initialValue: '${bikeModel.tireAspectRation}',
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Tire Aspect Ratio',
                         ),
                       ),
@@ -384,21 +372,21 @@ class EngineInfoCard extends StatelessWidget {
                   builder: (context, bikeModel, child) => Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      TextFormField(
+                      IntFormField(
                         onChanged: (value) => bikeModel.maxRpm = value,
                         initialValue: '${bikeModel.maxRpm}',
                         decoration: const InputDecoration(
                           labelText: 'Max RPM',
                         ),
                       ),
-                      TextFormField(
+                      IntFormField(
                         onChanged: (value) => bikeModel.maxTorque = value,
                         initialValue: '${bikeModel.maxTorque}',
                         decoration: const InputDecoration(
                           labelText: 'Max Torque (Nm)',
                         ),
                       ),
-                      TextFormField(
+                      DoubleFormField(
                         onChanged: (value) => bikeModel.powerLossInTransmission = value,
                         initialValue: '${bikeModel.powerLossInTransmission}',
                         decoration: const InputDecoration(
@@ -455,49 +443,49 @@ class OtherInfoCard extends StatelessWidget {
                   builder: (context, bikeModel, child) => Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      TextFormField(
+                      DoubleFormField(
                         onChanged: (value) => bikeModel.frontArea = value,
                         initialValue: '${bikeModel.frontArea}',
                         decoration: const InputDecoration(
                           labelText: 'Motorbike Fronta Area (m^2)',
                         ),
                       ),
-                      TextFormField(
+                      DoubleFormField(
                         onChanged: (value) => bikeModel.airDensity = value,
                         initialValue: '${bikeModel.airDensity}',
                         decoration: const InputDecoration(
                           labelText: 'Air Density (kg/m^3)',
                         ),
                       ),
-                      TextFormField(
+                      DoubleFormField(
                         onChanged: (value) => bikeModel.dragCoefficient = value,
                         initialValue: '${bikeModel.dragCoefficient}',
                         decoration: const InputDecoration(
                           labelText: 'Drag Coefficient',
                         ),
                       ),
-                      TextFormField(
+                      DoubleFormField(
                         onChanged: (value) => bikeModel.wetWeight = value,
                         initialValue: '${bikeModel.wetWeight}',
                         decoration: const InputDecoration(
                           labelText: 'Motorbike Wet Weight (kg)',
                         ),
                       ),
-                      TextFormField(
+                      DoubleFormField(
                         onChanged: (value) => bikeModel.riderWeight = value,
                         initialValue: '${bikeModel.riderWeight}',
                         decoration: const InputDecoration(
                           labelText: 'Rider Weight (kg)',
                         ),
                       ),
-                      TextFormField(
+                      DoubleFormField(
                         onChanged: (value) => bikeModel.rollResistance = value,
                         initialValue: '${bikeModel.rollResistance}',
                         decoration: const InputDecoration(
                           labelText: 'Roll Resistance coeff.',
                         ),
                       ),
-                      TextFormField(
+                      DoubleFormField(
                         onChanged: (value) => bikeModel.gravity = value,
                         initialValue: '${bikeModel.gravity}',
                         decoration: const InputDecoration(

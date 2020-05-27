@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'dart:math';
+import 'package:flutter/cupertino.dart';
 
 /// Motorbike gearing model
 class BikeModel extends ChangeNotifier {
@@ -47,25 +47,26 @@ class BikeModel extends ChangeNotifier {
   double get gravity => _gravity;
   double get totalWeight => _wetWeight + _riderWeight;
   double get rollResistanceForce => totalWeight * _rollResistance * _gravity;
+  //double get maxAcceleration => 
 
   /// Gearing setter
-  void setGearing(int gear, String gearing) {
+  void setGearing(int gear, double gearing) {
     //TODO check params limits
-    _gearing[gear] = double.tryParse(gearing) ?? 0.0;
+    _gearing[gear] = gearing;
     notifyListeners();
   }
 
   /// Front Sprocket Teeth setter
-  void setFrontSprocketTeeth(String frontSprocket) {
+  set frontSprocketTeeth(int frontSprocket) {
     //TODO check params limits
-    _frontSprocketTeeth = int.tryParse(frontSprocket) ?? 0;
+    _frontSprocketTeeth = frontSprocket;
     notifyListeners();
   }
 
   /// Rear Sprocket Teeth setter
-  void setRearSprocketTeeth(String rearSprocket) {
+  set rearSprocketTeeth(int rearSprocket) {
     //TODO check params limits
-    _rearSprocketTeeth = int.tryParse(rearSprocket) ?? 0;
+    _rearSprocketTeeth = rearSprocket;
     notifyListeners();
   }
 
@@ -79,67 +80,68 @@ class BikeModel extends ChangeNotifier {
         3.6;
   }
 
-  set rimSize(String rimSize) {
-    _rimSize = int.tryParse(rimSize) ?? 0;
+  set rimSize(int rimSize) {
+    _rimSize = rimSize;
     notifyListeners();
   }
 
-  set tireWidth(String tireWidth) {
-    _tireWidth = int.tryParse(tireWidth) ?? 0;
+  set tireWidth(int tireWidth) {
+    _tireWidth = tireWidth;
     notifyListeners();
   }
 
-  set tireAspectRation(String tireAspectRation) {
-    _tireAspectRation = int.tryParse(tireAspectRation) ?? 0;
-  }
-
-  set maxRpm(String maxRpm) {
-    _maxRpm = int.tryParse(maxRpm) ?? 0;
+  set tireAspectRation(int tireAspectRation) {
+    _tireAspectRation = tireAspectRation;
     notifyListeners();
   }
 
-  set maxTorque(String maxTorque) {
-    _maxTorque = int.tryParse(maxTorque) ?? 0;
+  set maxRpm(int maxRpm) {
+    _maxRpm = maxRpm;
     notifyListeners();
   }
 
-  set powerLossInTransmission(String powerLossInTransmission) {
-    _powerLossInTransmission = double.tryParse(powerLossInTransmission) ?? 0;
+  set maxTorque(int maxTorque) {
+    _maxTorque = maxTorque;
     notifyListeners();
   }
 
-  set frontArea(String frontArea) {
-    _frontArea = double.tryParse(frontArea) ?? 0;
+  set powerLossInTransmission(double powerLossInTransmission) {
+    _powerLossInTransmission = powerLossInTransmission;
     notifyListeners();
   }
 
-  set airDensity(String airDensity) {
-    _airDensity = double.tryParse(airDensity) ?? 0;
+  set frontArea(double frontArea) {
+    _frontArea = frontArea;
     notifyListeners();
   }
 
-  set dragCoefficient(String dragCoefficient) {
-    _dragCoefficient = double.tryParse(dragCoefficient) ?? 0;
+  set airDensity(double airDensity) {
+    _airDensity = airDensity;
     notifyListeners();
   }
 
-  set wetWeight(String wetWeight) {
-    _wetWeight = double.tryParse(wetWeight) ?? 0;
+  set dragCoefficient(double dragCoefficient) {
+    _dragCoefficient = dragCoefficient;
     notifyListeners();
   }
 
-  set riderWeight(String riderWeight) {
-    _riderWeight = double.tryParse(riderWeight) ?? 0;
+  set wetWeight(double wetWeight) {
+    _wetWeight = wetWeight;
     notifyListeners();
   }
 
-  set rollResistance(String rollResistance) {
-    _rollResistance = double.tryParse(rollResistance) ?? 0;
+  set riderWeight(double riderWeight) {
+    _riderWeight = riderWeight;
     notifyListeners();
   }
 
-  set gravity(String gravity) {
-    _gravity = double.tryParse(gravity) ?? 0;
+  set rollResistance(double rollResistance) {
+    _rollResistance = rollResistance;
+    notifyListeners();
+  }
+
+  set gravity(double gravity) {
+    _gravity = gravity;
     notifyListeners();
   }
 }
