@@ -43,7 +43,7 @@ class DoubleFormField extends StatelessWidget {
       initialValue: initialValue,
       inputFormatters: [
         WhitelistingTextInputFormatter(RegExp(r'[\d+\-\.]')),
-        DecimalTextInputFormatter(decimalRange: this.decimalRange),
+        DecimalTextInputFormatter(decimalRange: decimalRange),
       ],
     );
   }
@@ -56,8 +56,8 @@ class DecimalTextInputFormatter extends TextInputFormatter {
 
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    TextEditingValue _newValue = this.sanitize(newValue);
-    String text = _newValue.text;
+    final TextEditingValue _newValue = sanitize(newValue);
+    final String text = _newValue.text;
 
     if (decimalRange == null) {
       return _newValue;
@@ -71,11 +71,11 @@ class DecimalTextInputFormatter extends TextInputFormatter {
       );
     }
 
-    return this.isValid(text) ? _newValue : oldValue;
+    return isValid(text) ? _newValue : oldValue;
   }
 
   bool isValid(String text) {
-    int dots = '.'.allMatches(text).length;
+    final int dots = '.'.allMatches(text).length;
 
     if (dots == 0) {
       return true;
@@ -93,7 +93,7 @@ class DecimalTextInputFormatter extends TextInputFormatter {
       return value;
     }
 
-    String text = '-' + value.text.replaceAll('-', '');
+    final String text = '-' + value.text.replaceAll('-', '');
 
     return TextEditingValue(text: text, selection: value.selection, composing: TextRange.empty);
   }
