@@ -1,24 +1,25 @@
 import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 
 /// Motorbike gearing model
 class BikeModel extends ChangeNotifier {
   final List<double> _gearing = [1.857, 2.785, 2.052, 1.681, 1.45, 1.304, 1.148];
   int _frontSprocketTeeth = 17;
-  int _rearSprocketTeeth = 47;
+  int _rearSprocketTeeth = 43;
 
   int _rimSize = 17;
   int _tireWidth = 180;
   int _tireAspectRation = 55;
 
-  int _maxRpm = 12500;
+  int _maxRpm = 11400;
   int _maxTorque = 81;
   double _powerLossInTransmission = 0.1;
 
-  double _frontArea = 0.4;
+  double _frontArea = 0.6;
   double _airDensity = 1.2;
-  double _dragCoefficient = 0.6;
-  double _wetWeight = 190;
+  double _dragCoefficient = 0.65;
+  double _wetWeight = 213;
   double _riderWeight = 72;
   double _rollResistance = 0.006;
   double _gravity = 9.81;
@@ -43,11 +44,29 @@ class BikeModel extends ChangeNotifier {
   double get dragCoefficient => _dragCoefficient;
   double get wetWeight => _wetWeight;
   double get riderWeight => _riderWeight;
-  double get rollResistance => _rollResistance;
   double get gravity => _gravity;
+  double get rollResistanceCoeff => _rollResistance;
   double get totalWeight => _wetWeight + _riderWeight;
   double get rollResistanceForce => totalWeight * _rollResistance * _gravity;
-  //double get maxAcceleration => 
+  double get maxAcceleration =>
+      ((_maxTorque * (1 - _powerLossInTransmission) * _gearing[0] * _gearing[1] * finalDrive / wheelRadius) -
+          0.5 * _airDensity * pow(wheelRadius, 2) * _dragCoefficient * _frontArea /** pow(i11,2)*/ / pow(_gearing[0] * _gearing[1] * finalDrive, 2) -
+          rollResistanceForce) /
+      totalWeight;
+
+  double get maxSpeedTransLimited => getMaxSpeedForGear(_gearing.length - 1);
+
+  double getMaxSpeedForGear(int i) {
+    return (_maxRpm * 2.0 * pi / 60 / (_gearing[0] * _gearing[i] * finalDrive)) *
+        ((_rimSize * 0.0254 / 2) + ((_tireWidth * _tireAspectRation) / 100000)) *
+        3.6;
+  }
+
+  double getSpeedForRpmAndGear(int rpm, int gear) {
+    return (rpm * 2.0 * pi / 60 / (_gearing[0] * _gearing[gear] * finalDrive)) *
+        ((_rimSize * 0.0254 / 2) + ((_tireWidth * _tireAspectRation) / 100000)) *
+        3.6;
+  }
 
   void setGearing(int gear, double gearing) {
     _gearing[gear] = gearing;
@@ -66,12 +85,6 @@ class BikeModel extends ChangeNotifier {
 
   double getGearing(int i) {
     return _gearing[i];
-  }
-
-  double getMaxSpeedForGear(int i) {
-    return (_maxRpm * 2.0 * pi / 60 / (_gearing[0] * _gearing[i] * finalDrive)) *
-        ((_rimSize * 0.0254 / 2) + ((_tireWidth * _tireAspectRation) / 100000)) *
-        3.6;
   }
 
   set rimSize(int rimSize) {
@@ -129,7 +142,7 @@ class BikeModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  set rollResistance(double rollResistance) {
+  set rollResistanceCoeff(double rollResistance) {
     _rollResistance = rollResistance;
     notifyListeners();
   }
