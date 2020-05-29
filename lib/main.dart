@@ -70,36 +70,43 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               GearboxRatiosCard(),
+              Text(
+                'Final Drive: ${bikeModel.finalDrive.toStringAsFixed(3)}',
+              ),
               SprocketsCard(),
+              const Divider(),
+              Text(
+                'Wheel Radius (m): ${bikeModel.wheelRadius.toStringAsFixed(3)}',
+              ),
               RearWheelCard(),
               EngineInfoCard(),
+              Text(
+                'Total weight (kg): ${bikeModel.totalWeight.toStringAsFixed(3)}',
+              ),
+              Text(
+                'Roll Resistance coeff.: ${bikeModel.rollResistanceForce.toStringAsFixed(3)}',
+              ),
               OtherInfoCard(),
+              const Divider(),
               Text(
-                'Final Drive: ${bikeModel.finalDrive}',
+                'Max Acceleration (m/s^2): ${bikeModel.maxAcceleration.toStringAsFixed(1)}',
               ),
               Text(
-                'Wheel Radius (m): ${bikeModel.wheelRadius}',
-              ),
-              Text(
-                'Total weight (kg): ${bikeModel.totalWeight}',
-              ),
-              Text(
-                'Roll Resistance coeff.: ${bikeModel.rollResistanceForce}',
+                'Max Speeds trans limited (km/h): ${bikeModel.maxSpeedTransLimited.toStringAsFixed(1)}',
               ),
               const Divider(),
               const Text(
-                'Max Speed (km/h):',
+                'Max Speeds per gear (km/h):',
               ),
-              Text('1st: ${bikeModel.getMaxSpeedForGear(1)}'),
-              Text('2nd: ${bikeModel.getMaxSpeedForGear(2)}'),
-              Text('3rd: ${bikeModel.getMaxSpeedForGear(3)}'),
-              Text('4th: ${bikeModel.getMaxSpeedForGear(4)}'),
-              Text('5th: ${bikeModel.getMaxSpeedForGear(5)}'),
-              Text('6th: ${bikeModel.getMaxSpeedForGear(6)}'),
-              Padding(
-                    padding: const EdgeInsets.only(bottom: 200),
-                    
-                  ),
+              Text('1st: ${bikeModel.getMaxSpeedForGear(1).toStringAsFixed(1)}'),
+              Text('2nd: ${bikeModel.getMaxSpeedForGear(2).toStringAsFixed(1)}'),
+              Text('3rd: ${bikeModel.getMaxSpeedForGear(3).toStringAsFixed(1)}'),
+              Text('4th: ${bikeModel.getMaxSpeedForGear(4).toStringAsFixed(1)}'),
+              Text('5th: ${bikeModel.getMaxSpeedForGear(5).toStringAsFixed(1)}'),
+              Text('6th: ${bikeModel.getMaxSpeedForGear(6).toStringAsFixed(1)}'),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 200),
+              ),
             ],
           ),
         ),
@@ -483,8 +490,8 @@ class OtherInfoCard extends StatelessWidget {
                         ),
                       ),
                       DoubleFormField(
-                        onChanged: (value) => bikeModel.rollResistance = value,
-                        initialValue: '${bikeModel.rollResistance}',
+                        onChanged: (value) => bikeModel.rollResistanceCoeff = value,
+                        initialValue: '${bikeModel.rollResistanceCoeff}',
                         decoration: const InputDecoration(
                           labelText: 'Roll Resistance coeff.',
                         ),
