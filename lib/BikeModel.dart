@@ -1,6 +1,14 @@
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
+
+class SpeedForRpm {
+  final double speed;
+  final int rpm;
+
+  SpeedForRpm(this.speed, this.rpm);
+}
 
 /// Motorbike gearing model
 class BikeModel extends ChangeNotifier {
@@ -56,16 +64,52 @@ class BikeModel extends ChangeNotifier {
 
   double get maxSpeedTransLimited => getMaxSpeedForGear(_gearing.length - 1);
 
-  double getMaxSpeedForGear(int i) {
-    return (_maxRpm * 2.0 * pi / 60 / (_gearing[0] * _gearing[i] * finalDrive)) *
-        ((_rimSize * 0.0254 / 2) + ((_tireWidth * _tireAspectRation) / 100000)) *
-        3.6;
-  }
+  double getMaxSpeedForGear(int i) =>
+      (_maxRpm * 2.0 * pi / 60 / (_gearing[0] * _gearing[i] * finalDrive)) *
+      ((_rimSize * 0.0254 / 2) + ((_tireWidth * _tireAspectRation) / 100000)) *
+      3.6;
 
-  double getSpeedForRpmAndGear(int rpm, int gear) {
-    return (rpm * 2.0 * pi / 60 / (_gearing[0] * _gearing[gear] * finalDrive)) *
-        ((_rimSize * 0.0254 / 2) + ((_tireWidth * _tireAspectRation) / 100000)) *
-        3.6;
+  double getSpeedForRpmAndGear(int rpm, int gear) =>
+      (rpm * 2.0 * pi / 60 / (_gearing[0] * _gearing[gear] * finalDrive)) *
+      ((_rimSize * 0.0254 / 2) + ((_tireWidth * _tireAspectRation) / 100000)) *
+      3.6;
+
+  double getRadPerSec(int rpm) => rpm * 2 * pi / 60;
+  double getSpeedMeterPerSec(int speedInKmh) => speedInKmh * 1000 / 3600;
+
+  int gearChangeRpm(int fromGear, int toGear) => fromGear <= 0 ? 0 : (_maxRpm * _gearing[toGear] / _gearing[fromGear]).round();
+
+  List<charts.Series<SpeedForRpm, int>> createSpeedPerRpmData() {
+    List<SpeedForRpm> dataList = new List<SpeedForRpm>();
+    dataList.add(SpeedForRpm(0, 0));
+    dataList.add(SpeedForRpm(getMaxSpeedForGear(1), _maxRpm));
+
+    dataList.add(SpeedForRpm(getSpeedForRpmAndGear(gearChangeRpm(1, 2), 2), gearChangeRpm(1, 2)));
+    dataList.add(SpeedForRpm(getMaxSpeedForGear(2), _maxRpm));
+
+    dataList.add(SpeedForRpm(getSpeedForRpmAndGear(gearChangeRpm(2, 3), 3), gearChangeRpm(2, 3)));
+    dataList.add(SpeedForRpm(getMaxSpeedForGear(3), _maxRpm));
+
+    dataList.add(SpeedForRpm(getSpeedForRpmAndGear(gearChangeRpm(3, 4), 4), gearChangeRpm(3, 4)));
+    dataList.add(SpeedForRpm(getMaxSpeedForGear(4), _maxRpm));
+
+    dataList.add(SpeedForRpm(getSpeedForRpmAndGear(gearChangeRpm(4, 5), 5), gearChangeRpm(4, 5)));
+    dataList.add(SpeedForRpm(getMaxSpeedForGear(5), _maxRpm));
+
+    dataList.add(SpeedForRpm(getSpeedForRpmAndGear(gearChangeRpm(5, 6), 6), gearChangeRpm(5, 6)));
+    dataList.add(SpeedForRpm(getMaxSpeedForGear(6), _maxRpm));
+    // for (var i = 1; i > _gearing.length; i++) {
+    //   dataList.add(SpeedForRpm(getMaxSpeedForGear(i), gearChangeRpm(i - 1, i)));
+    // }
+
+    return [
+      charts.Series<SpeedForRpm, int>(
+        id: 'Speed Plot',
+        domainFn: (SpeedForRpm data, _) => data.speed.toInt(),
+        measureFn: (SpeedForRpm data, _) => data.rpm,
+        data: dataList,
+      )
+    ];
   }
 
   void setGearing(int gear, double gearing) {

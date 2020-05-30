@@ -4,6 +4,7 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'BikeModel.dart';
 import 'NumericFormField.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 void main() {
   runApp(MyApp());
@@ -104,6 +105,12 @@ class _MyHomePageState extends State<MyHomePage> {
               Text('4th: ${bikeModel.getMaxSpeedForGear(4).toStringAsFixed(1)}'),
               Text('5th: ${bikeModel.getMaxSpeedForGear(5).toStringAsFixed(1)}'),
               Text('6th: ${bikeModel.getMaxSpeedForGear(6).toStringAsFixed(1)}'),
+              SizedBox(
+                height: 300,
+                child: charts.LineChart(bikeModel.createSpeedPerRpmData(), animate: true, behaviors: [
+                  charts.PanAndZoomBehavior(),
+                ]),
+              ),
               const Padding(
                 padding: EdgeInsets.only(bottom: 200),
               ),
