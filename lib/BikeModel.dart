@@ -10,9 +10,32 @@ class SpeedForRpm {
   SpeedForRpm(this.speed, this.rpm);
 }
 
+class TorqueForRpm {
+  final double torque;
+  final int rpm;
+
+  TorqueForRpm(this.rpm, this.torque);
+}
+
 /// Motorbike gearing model
 class BikeModel extends ChangeNotifier {
   final List<double> _gearing = [1.857, 2.785, 2.052, 1.681, 1.45, 1.304, 1.148];
+  final Map<int, double> _torque = <int, double>{
+    0: 1,
+    1000: 34,
+    2000: 41,
+    3000: 51,
+    4000: 64,
+    5000: 65,
+    6000: 64,
+    7000: 67,
+    8000: 73,
+    9000: 74,
+    10000: 71,
+    11000: 65, //made up
+    11400: 61,
+  };
+
   int _frontSprocketTeeth = 17;
   int _rearSprocketTeeth = 43;
 
@@ -81,6 +104,8 @@ class BikeModel extends ChangeNotifier {
 
   List<charts.Series<SpeedForRpm, int>> createSpeedPerRpmData() {
     List<SpeedForRpm> dataList = new List<SpeedForRpm>();
+    //TODO put it in different series so there's cuts between gears and create a cycle for this.
+    final List<SpeedForRpm> dataList = <SpeedForRpm>[];
     dataList.add(SpeedForRpm(0, 0));
     dataList.add(SpeedForRpm(getMaxSpeedForGear(1), _maxRpm));
 
@@ -107,6 +132,20 @@ class BikeModel extends ChangeNotifier {
         id: 'Speed Plot',
         domainFn: (SpeedForRpm data, _) => data.speed.toInt(),
         measureFn: (SpeedForRpm data, _) => data.rpm,
+        data: dataList,
+      )
+    ];
+  }
+
+  List<charts.Series<TorqueForRpm, int>> createTorquePerRpmData() {
+    final List<TorqueForRpm> dataList = <TorqueForRpm>[];
+    _torque.forEach((key, value) => dataList.add(TorqueForRpm(key, value)));
+
+    return [
+      charts.Series<TorqueForRpm, int>(
+        id: 'Troque Plot',
+        domainFn: (TorqueForRpm data, _) => data.rpm,
+        measureFn: (TorqueForRpm data, _) =>  data.torque.toInt(),
         data: dataList,
       )
     ];

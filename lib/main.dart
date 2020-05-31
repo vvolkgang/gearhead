@@ -1,10 +1,12 @@
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+
 import 'BikeModel.dart';
+import 'ChartUtils.dart';
 import 'NumericFormField.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
 
 void main() {
   runApp(MyApp());
@@ -93,11 +95,34 @@ class _MyHomePageState extends State<MyHomePage> {
               Text('4th: ${bikeModel.getMaxSpeedForGear(4).toStringAsFixed(1)}'),
               Text('5th: ${bikeModel.getMaxSpeedForGear(5).toStringAsFixed(1)}'),
               Text('6th: ${bikeModel.getMaxSpeedForGear(6).toStringAsFixed(1)}'),
+              const Text('Speed per Gear Plot:'),
               SizedBox(
                 height: 300,
-                child: charts.LineChart(bikeModel.createSpeedPerRpmData(), animate: true, behaviors: [
-                  charts.PanAndZoomBehavior(),
-                ]),
+                child: charts.LineChart(bikeModel.createSpeedPerRpmData(),
+                    animate: true,
+                    defaultRenderer: charts.LineRendererConfig(includeArea: false, stacked: true, roundEndCaps: false),
+                    behaviors: [
+                      charts.PanAndZoomBehavior(),
+                    ]),
+              ),
+              const Divider(),
+              const Text('Torque Plot:'),
+              SizedBox(
+                height: 300,
+                child: charts.LineChart(bikeModel.createTorquePerRpmData(),
+                    animate: true,
+                    defaultRenderer: charts.LineRendererConfig(includeArea: false, stacked: true, roundEndCaps: true),
+                    selectionModels: [
+                      charts.SelectionModelConfig(changedListener: (charts.SelectionModel model) {
+                        if (model.hasDatumSelection) {
+                          ToolTipMgr.setTitleString(model.selectedSeries[0].measureFn(model.selectedDatum[0].index).toString());
+                        }
+                      })
+                    ],
+                    behaviors: [
+                      charts.PanAndZoomBehavior(),
+                      charts.LinePointHighlighter(symbolRenderer: CustomCircleSymbolRenderer(context))
+                    ]),
               ),
               const Padding(
                 padding: EdgeInsets.only(bottom: 200),
