@@ -101,8 +101,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: charts.LineChart(bikeModel.createSpeedPerRpmData(),
                     animate: true,
                     defaultRenderer: charts.LineRendererConfig(includeArea: false, stacked: true, roundEndCaps: false),
+                    selectionModels: [
+                      charts.SelectionModelConfig(changedListener: (charts.SelectionModel model) {
+                        if (model.hasDatumSelection) {
+                          ToolTipMgr.setSelectedValue('speedPerRpmChart', model.selectedSeries[0].measureFn(model.selectedDatum[0].index).toString());
+                        }
+                      })
+                    ],
                     behaviors: [
                       charts.PanAndZoomBehavior(),
+                      //charts.LinePointHighlighter(symbolRenderer: CustomCircleSymbolRenderer(context, 'speedPerRpmChart'))
                     ]),
               ),
               const Divider(),
@@ -115,13 +123,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     selectionModels: [
                       charts.SelectionModelConfig(changedListener: (charts.SelectionModel model) {
                         if (model.hasDatumSelection) {
-                          ToolTipMgr.setTitleString(model.selectedSeries[0].measureFn(model.selectedDatum[0].index).toString());
+                          ToolTipMgr.setSelectedValue('torqueChart', model.selectedSeries[0].measureFn(model.selectedDatum[0].index).toString());
                         }
                       })
                     ],
                     behaviors: [
                       charts.PanAndZoomBehavior(),
-                      charts.LinePointHighlighter(symbolRenderer: CustomCircleSymbolRenderer(context))
+                      charts.LinePointHighlighter(symbolRenderer: CustomCircleSymbolRenderer(context, 'torqueChart'))
                     ]),
               ),
               const Padding(
