@@ -103,7 +103,6 @@ class BikeModel extends ChangeNotifier {
   int gearChangeRpm(int fromGear, int toGear) => fromGear <= 0 ? 0 : (_maxRpm * _gearing[toGear] / _gearing[fromGear]).round();
 
   List<charts.Series<SpeedForRpm, int>> createSpeedPerRpmData() {
-    List<SpeedForRpm> dataList = new List<SpeedForRpm>();
     //TODO put it in different series so there's cuts between gears and create a cycle for this.
     final List<SpeedForRpm> dataList = <SpeedForRpm>[];
     dataList.add(SpeedForRpm(0, 0));
