@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(primarySwatch: Colors.deepPurple, visualDensity: VisualDensity.adaptivePlatformDensity, brightness: Brightness.dark),
+      theme: ThemeData(primarySwatch: Colors.deepPurple, visualDensity: VisualDensity.adaptivePlatformDensity, brightness: Brightness.light),
       home: ChangeNotifierProvider<BikeModel>(create: (context) => BikeModel(), child: const MyHomePage(title: 'Gear Head')),
     );
   }
