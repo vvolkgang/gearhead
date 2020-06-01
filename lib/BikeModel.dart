@@ -111,38 +111,41 @@ class BikeModel extends ChangeNotifier {
   double getTorqueIncrementConstant(int prevRpm, int currRpm) =>
       getTorqueWithLosses(currRpm) - getRadPerSec(currRpm) * getTorqueGainConstant(prevRpm, currRpm);
 
-
-//=1/($F$11*(F18-F17))*((VLOOKUP(E18,'t1'!$A$3:$F$13,5,TRUE)*$B$2*VLOOKUP(config1!D18,config1!$A$3:$B$8,2,FALSE)*$B$9*config1!F18^2/(2*$D$7)+VLOOKUP(config1!E18,'t1'!$A$3:$F$13,6,TRUE)*$B$2*VLOOKUP(config1!D18,config1!$A$3:$B$8,2,FALSE)*$B$9*config1!F18/$D$7-0.5*$F$7*$F$6*$F$8*$D$7^2*config1!F18^3/(($B$2*VLOOKUP(config1!D18,config1!$A$3:$B$8,2,FALSE)*$B$9)^2*3)-$F$13*config1!F18)-
-//(VLOOKUP(E18,'t1'!$A$3:$F$13,5,TRUE)*$B$2*VLOOKUP(config1!D18,config1!$A$3:$B$8,2,FALSE)*$B$9*config1!F17^2/(2*$D$7)+VLOOKUP(config1!E18,'t1'!$A$3:$F$13,6,TRUE)*$B$2*VLOOKUP(config1!D18,config1!$A$3:$B$8,2,FALSE)*$B$9*config1!F17/$D$7-0.5*$F$7*$F$6*$F$8*$D$7^2*config1!F17^3/(($B$2*VLOOKUP(config1!D18,config1!$A$3:$B$8,2,FALSE)*$B$9)^2*3)-$F$13*config1!F17))
+  // double w1(int prevRpm, int currRpm, int gear) =>
+  
   double meanAcceleration(int prevRpm, int currRpm, int gear) =>
-      1 /
-      (totalWeight * (getRadPerSec(currRpm) - getRadPerSec(prevRpm))) *
-      ((getTorqueGainConstant(prevRpm, currRpm) * primaryGear * _gearing[gear] * finalDrive * pow(getRadPerSec(currRpm), 2) / (2 * wheelRadius) +
-              getTorqueIncrementConstant(prevRpm, currRpm) * primaryGear * _gearing[gear] * finalDrive * getRadPerSec(currRpm) / wheelRadius -
-              0.5 *
-                  airDensity *
-                  frontArea *
-                  dragCoefficient *
-                  pow(wheelRadius, 2) *
-                  pow(getRadPerSec(currRpm), 3) /
-                  (pow(primaryGear * _gearing[gear] * finalDrive, 2) * 3) -
-              rollResistanceForce * currRpm) -
-          (getTorqueGainConstant(prevRpm, currRpm) * primaryGear * _gearing[gear] * finalDrive * pow(getRadPerSec(prevRpm), 2) / (2 * wheelRadius) +
-              getTorqueIncrementConstant(prevRpm, currRpm) * primaryGear * _gearing[gear] * finalDrive * getRadPerSec(prevRpm) / wheelRadius -
-              0.5 *
-                  airDensity *
-                  frontArea *
-                  dragCoefficient *
-                  pow(wheelRadius, 2) *
-                  pow(getRadPerSec(prevRpm), 3) /
-                  (pow(primaryGear * _gearing[gear] * finalDrive, 2) * 3) -
-              rollResistanceForce * getRadPerSec(prevRpm)));
+      1 / (totalWeight * (getRadPerSec(currRpm) - getRadPerSec(prevRpm))) *
+          ((getTorqueGainConstant(prevRpm, currRpm) * primaryGear * _gearing[gear] * finalDrive * pow(getRadPerSec(currRpm), 2) / (2 * wheelRadius) +
+                  getTorqueIncrementConstant(prevRpm, currRpm) * primaryGear * _gearing[gear] * finalDrive * getRadPerSec(currRpm) / wheelRadius -
+                  0.5 *
+                      airDensity *
+                      frontArea *
+                      dragCoefficient *
+                      pow(wheelRadius, 2) *
+                      pow(getRadPerSec(currRpm), 3) /
+                      (pow(primaryGear * _gearing[gear] * finalDrive, 2) * 3) -
+                  rollResistanceForce * currRpm) -
+              (getTorqueGainConstant(prevRpm, currRpm) *
+                      primaryGear *
+                      _gearing[gear] *
+                      finalDrive *
+                      pow(getRadPerSec(prevRpm), 2) /
+                      (2 * wheelRadius) +
+                  getTorqueIncrementConstant(prevRpm, currRpm) * primaryGear * _gearing[gear] * finalDrive * getRadPerSec(prevRpm) / wheelRadius -
+                  0.5 *
+                      airDensity *
+                      frontArea *
+                      dragCoefficient *
+                      pow(wheelRadius, 2) *
+                      pow(getRadPerSec(prevRpm), 3) /
+                      (pow(primaryGear * _gearing[gear] * finalDrive, 2) * 3) -
+                  rollResistanceForce * getRadPerSec(prevRpm)));
 
   Map<int, double> createMeanAccelerationForGear(int gear) {
     final meanAccelMap = Map<int, double>.from(_torque);
     meanAccelMap[0] = 0;
     //TODO currently we're using the torque values sampling rate. After implementing torque values lerp this can be improved to configurable (thus more accurate) sampling rate
-    
+
     for (var i = 1; i < _torque.length; i++) {
       final prevRpm = _torque.keys.elementAt(i - 1);
       final currRpm = _torque.keys.elementAt(i);
