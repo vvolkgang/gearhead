@@ -57,6 +57,7 @@ class BikeModel extends ChangeNotifier {
 
   int get frontSprocketTeeth => _frontSprocketTeeth;
   int get rearSprocketTeeth => _rearSprocketTeeth;
+  double get primaryGear => _gearing[0];
 
   /// Calculates the final drive based on the front and rear sprocket
   double get finalDrive => _rearSprocketTeeth / _frontSprocketTeeth;
@@ -102,6 +103,59 @@ class BikeModel extends ChangeNotifier {
 
   int gearChangeRpm(int fromGear, int toGear) => fromGear <= 0 ? 0 : (_maxRpm * _gearing[toGear] / _gearing[fromGear]).round();
 
+  double getTorque(int rpm) => _torque[rpm]; //TODO improve this so it interpolates between values
+  double getTorqueWithLosses(int rpm) => getTorque(rpm) * _powerLossInTransmission;
+
+  double meanAcceleration(int currentRpm, int nextRpm, int gear) =>
+      1 /
+      (totalWeight * (nextRpm - currentRpm)) *
+      ((getTorqueGainConstant(currentRpm, nextRpm) * primaryGear * _gearing[gear] * finalDrive * pow(nextRpm, 2) / (2 * wheelRadius) +
+              getTorqueIncrementConstant(currentRpm, nextRpm) * primaryGear * _gearing[gear] * finalDrive * nextRpm / wheelRadius -
+              0.5 *
+                  airDensity *
+                  frontArea *
+                  dragCoefficient *
+                  pow(wheelRadius, 2) *
+                  pow(nextRpm, 3) /
+                  (pow(primaryGear * _gearing[gear] * finalDrive, 2) * 3) -
+              rollResistanceForce * nextRpm) -
+          (getTorqueGainConstant(currentRpm, nextRpm) *
+                  primaryGear *
+                  _gearing[gear] *
+                  finalDrive *
+                  pow(getRadPerSec(currentRpm), 2) /
+                  (2 * wheelRadius) +
+              getTorqueIncrementConstant(currentRpm, nextRpm) * primaryGear * _gearing[gear] * finalDrive * getRadPerSec(currentRpm) / wheelRadius -
+              0.5 *
+                  airDensity *
+                  frontArea *
+                  dragCoefficient *
+                  pow(wheelRadius, 2) *
+                  pow(getRadPerSec(currentRpm), 3) /
+                  (pow(primaryGear * _gearing[gear] * finalDrive, 2) * 3) -
+              rollResistanceForce * getRadPerSec(currentRpm)));
+
+  double getTorqueGainConstant(int currentRpm, int nextRpm) =>
+      (getTorqueWithLosses(nextRpm) - getTorqueWithLosses(currentRpm)) / (getRadPerSec(nextRpm) - getRadPerSec(currentRpm));
+
+  double getTorqueIncrementConstant(int currentRpm, int nextRpm) =>
+      getTorqueWithLosses(nextRpm) - getRadPerSec(nextRpm) * getTorqueGainConstant(currentRpm, nextRpm);
+
+  Map<int, double> createMeanAccelerationForGear(int gear){
+    final meanAccelMap = Map<int, double>.from(_torque);
+    //TODO currently we're using the torque values sampling rate. After implementing torque values lerp this can be improved to configurable (thus more accurate) sampling rate 
+    for (var i = _torque.length - 1; i > 0; i--) {
+      final currRpm = _torque.keys.elementAt(i);
+      final nextRpm = _torque.keys.elementAt(i-1);
+
+      final macc = meanAcceleration(currRpm, nextRpm, gear);
+
+      meanAccelMap[currRpm] = macc;
+    }
+
+    return meanAccelMap;
+  }
+
   List<charts.Series<SpeedForRpm, int>> createSpeedPerRpmData() {
     //TODO put it in different series so there's cuts between gears and create a cycle for this.
     final List<SpeedForRpm> dataList = <SpeedForRpm>[];
@@ -144,7 +198,7 @@ class BikeModel extends ChangeNotifier {
       charts.Series<TorqueForRpm, int>(
         id: 'Troque Plot',
         domainFn: (TorqueForRpm data, _) => data.rpm,
-        measureFn: (TorqueForRpm data, _) =>  data.torque.toInt(),
+        measureFn: (TorqueForRpm data, _) => data.torque.toInt(),
         data: dataList,
       )
     ];
