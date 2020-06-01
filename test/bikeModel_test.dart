@@ -4,11 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gearhead/BikeModel.dart';
 
 void main() {
-  test('Counter value should be incremented', () {
+  test('Mean Acceleration map last value should be whats expected', () {
     final bike = BikeModel();
 
-    final prevRpm = 0;
-    final currRpm = 1000;
+    const prevRpm = 0;
+    const currRpm = 1000;
 
     final rad = bike.getRadPerSec(currRpm);
     final torquePrev = bike.getTorqueWithLosses(prevRpm);
@@ -18,12 +18,11 @@ void main() {
     final b = bike.getTorqueGainConstant(prevRpm, currRpm);
     final c = bike.getTorqueIncrementConstant(prevRpm, currRpm);
 
-    final w2 = bike.w(prevRpm, currRpm, 1, currRpm);
-    final w1 = bike.w(prevRpm, currRpm, 1, prevRpm);
-    final weight = bike.m(prevRpm, currRpm);
+    final w2 = bike.forcePerSec(b, c, 1, currRpm);
+    final w1 = bike.forcePerSec(b, c, 1, prevRpm);
 
     final map = bike.createMeanAccelerationForGear(1);
 
-    expect(map.values.last, 7.551196924982919);
+    expect(map.values.last.toStringAsFixed(2), '7.55');
   });
 }

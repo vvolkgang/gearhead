@@ -111,9 +111,9 @@ class BikeModel extends ChangeNotifier {
   double getTorqueIncrementConstant(int prevRpm, int currRpm) =>
       getTorqueWithLosses(currRpm) - getRadPerSec(currRpm) * getTorqueGainConstant(prevRpm, currRpm);
 
-  double w(int prevRpm, int currRpm, int gear, int rpm) =>
-      getTorqueGainConstant(prevRpm, currRpm) * primaryGear * _gearing[gear] * finalDrive / (2 * wheelRadius) * pow(getRadPerSec(rpm), 2) +
-      getTorqueIncrementConstant(prevRpm, currRpm) * primaryGear * _gearing[gear] * finalDrive / wheelRadius * getRadPerSec(rpm) -
+  double forcePerSec(double torqueGain, double torqueInc, int gear, int rpm) =>
+      torqueGain * primaryGear * _gearing[gear] * finalDrive / (2 * wheelRadius) * pow(getRadPerSec(rpm), 2) +
+      torqueInc * primaryGear * _gearing[gear] * finalDrive / wheelRadius * getRadPerSec(rpm) -
       0.5 *
           airDensity *
           frontArea *
@@ -123,9 +123,12 @@ class BikeModel extends ChangeNotifier {
           pow(getRadPerSec(rpm), 3) -
       rollResistanceForce * getRadPerSec(rpm);
 
-  double m(int prevRpm, int currRpm) => totalWeight * (getRadPerSec(currRpm) - getRadPerSec(prevRpm));
-  double meanAcceleration(int prevRpm, int currRpm, int gear) =>
-      (1 / m(prevRpm, currRpm)) * (w(prevRpm, currRpm, gear, currRpm) - w(prevRpm, currRpm, gear, prevRpm));
+  double meanAcceleration(int prevRpm, int currRpm, int gear) {
+    final b = getTorqueGainConstant(prevRpm, currRpm);
+    final c = getTorqueIncrementConstant(prevRpm, currRpm);
+
+    return (1 / (totalWeight * (getRadPerSec(currRpm) - getRadPerSec(prevRpm)))) * (forcePerSec(b, c, gear, currRpm) - forcePerSec(b, c, gear, prevRpm));
+  }
 
   Map<int, double> createMeanAccelerationForGear(int gear) {
     final meanAccelMap = Map<int, double>.from(_torque);
