@@ -17,6 +17,14 @@ class TorqueForRpm {
   TorqueForRpm(this.rpm, this.torque);
 }
 
+class AccelData {
+  final double meanAccel;
+  final double distance;
+  final double time;
+
+  AccelData(this.meanAccel, this.time, this.distance);
+}
+
 /// Motorbike gearing model
 class BikeModel extends ChangeNotifier {
   final List<double> _gearing = [1.857, 2.785, 2.052, 1.681, 1.45, 1.304, 1.148];
@@ -101,7 +109,8 @@ class BikeModel extends ChangeNotifier {
       ((_rimSize * 0.0254 / 2) + ((_tireWidth * _tireAspectRation) / 100000)) *
       3.6;
 
-  double getSpeedMeterPerSec(int speedInKmh) => speedInKmh * 1000 / 3600;
+  double getSpeedMeterPerSec(double speedInKmh) => speedInKmh * 1000 / 3600;
+  double getSpeedMeterPerSecFromRpm(int rpm, int gear) => getSpeedMeterPerSec(getSpeedForRpmAndGear(rpm, gear));
 
   int gearChangeRpm(int fromGear, int toGear) => fromGear <= 0 ? 0 : (_maxRpm * _gearing[toGear] / _gearing[fromGear]).round();
 
@@ -130,12 +139,13 @@ class BikeModel extends ChangeNotifier {
     final b = getTorqueGainConstant(prevRpm, currRpm);
     final c = getTorqueIncrementConstant(prevRpm, currRpm);
 
-    return (1 / (totalWeight * (getRadPerSec(currRpm) - getRadPerSec(prevRpm)))) * (forcePerSec(b, c, gear, currRpm) - forcePerSec(b, c, gear, prevRpm));
+    return (1 / (totalWeight * (getRadPerSec(currRpm) - getRadPerSec(prevRpm)))) *
+        (forcePerSec(b, c, gear, currRpm) - forcePerSec(b, c, gear, prevRpm));
   }
 
-  Map<int, double> createMeanAccelerationForGear(int gear) {
-    final meanAccelMap = Map<int, double>.from(_torque);
-    meanAccelMap[0] = 0;
+  Map<int, AccelData> createMeanAccelerationForGear(int gear) {
+    final meanAccelMap = <int, AccelData>{};
+    meanAccelMap[0] = AccelData(0,0,0);
     //TODO currently we're using the torque values sampling rate. After implementing torque values lerp this can be improved to configurable (thus more accurate) sampling rate
 
     for (var i = 1; i < _torque.length; i++) {
@@ -143,12 +153,25 @@ class BikeModel extends ChangeNotifier {
       final currRpm = _torque.keys.elementAt(i);
 
       final macc = meanAcceleration(prevRpm, currRpm, gear);
+      final time = calcTimeWithResistance(prevRpm, currRpm, gear, macc);
+      final dist = calcDistance(prevRpm, currRpm, gear, macc, time);
 
-      meanAccelMap[currRpm] = macc;
+      
+      meanAccelMap[currRpm] = AccelData(macc, time, dist);
     }
 
     return meanAccelMap;
   }
+
+  double calcTimeWithResistance(int prevRpm, int currRpm, int gear, double macc) {
+    final prevSpeed = currRpm == _launchControlRpm ? 0 : getSpeedMeterPerSecFromRpm(prevRpm, gear);
+    final currSpeed = getSpeedMeterPerSecFromRpm(currRpm, gear);
+
+    return (currSpeed - prevSpeed) / macc;
+  }
+
+  double calcDistance(int prevRpm, int currRpm, int gear, double macc, double time) =>
+      currRpm < _launchControlRpm ? 0 : .5 * macc * pow(time, 2) + getSpeedForRpmAndGear(prevRpm, gear) * time;
 
   List<charts.Series<SpeedForRpm, int>> createSpeedPerRpmData() {
     //TODO put it in different series so there's cuts between gears and create a cycle for this.

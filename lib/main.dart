@@ -132,6 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       charts.LinePointHighlighter(symbolRenderer: CustomCircleSymbolRenderer(context, 'torqueChart'))
                     ]),
               ),
+              BikeDataTable(),
               const Padding(
                 padding: EdgeInsets.only(bottom: 200),
               ),
@@ -551,5 +552,68 @@ class OtherInfoCard extends StatelessWidget {
         ),
       ),
     ));
+  }
+}
+
+class BikeDataTable extends StatelessWidget {
+  List<DataRow> _createDataTableRows(BikeModel bikeModel) {
+    const gear = 1;
+    final list = <DataRow>[];
+    final map = bikeModel.createMeanAccelerationForGear(gear);
+    map.forEach((key, value) {
+      list.add(DataRow(cells: <DataCell>[
+        DataCell(Text(key.toString())), //rpm
+        DataCell(Text(bikeModel.getSpeedForRpmAndGear(key, gear).toStringAsFixed(1))),
+        DataCell(Text(value.meanAccel.toStringAsFixed(1))),
+        DataCell(Text(value.time.toStringAsFixed(1))),
+        DataCell(Text(value.distance.toStringAsFixed(1))),
+      ]));
+    });
+
+    return list;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Consumer<BikeModel>(
+        builder: (context, bikeModel, child) {
+          final dataTable = DataTable(columns: const <DataColumn>[
+            DataColumn(
+              label: Text(
+                'Rpm',
+                style: TextStyle(fontStyle: FontStyle.italic),
+              ),
+            ),
+            DataColumn(
+              label: Text(
+                'Speed (km/h)',
+                style: TextStyle(fontStyle: FontStyle.italic),
+              ),
+            ),
+            DataColumn(
+              label: Text(
+                'Mean Acceleration (m/s^2)',
+                style: TextStyle(fontStyle: FontStyle.italic),
+              ),
+            ),
+            DataColumn(
+              label: Text(
+                'Time (s) with resistance',
+                style: TextStyle(fontStyle: FontStyle.italic),
+              ),
+            ),
+            DataColumn(
+              label: Text(
+                'Distance (m)',
+                style: TextStyle(fontStyle: FontStyle.italic),
+              ),
+            ),
+          ], rows: _createDataTableRows(bikeModel));
+          return dataTable;
+        },
+      ),
+    );
   }
 }

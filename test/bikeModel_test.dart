@@ -1,5 +1,3 @@
-
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gearhead/BikeModel.dart';
 
@@ -23,6 +21,6 @@ void main() {
 
     final map = bike.createMeanAccelerationForGear(1);
 
-    expect(map.values.last.toStringAsFixed(2), '7.55');
+    expect(map.values.last.meanAccel.toStringAsFixed(2), '7.55');
   });
 }
