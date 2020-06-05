@@ -54,6 +54,9 @@ class BikeModel extends ChangeNotifier {
   double _riderWeight = 72;
   double _rollResistance = 0.006;
   double _gravity = 9.81;
+  int _launchControlRpm = 6000;
+
+  int get launchControlRpm => _launchControlRpm;
 
   int get frontSprocketTeeth => _frontSprocketTeeth;
   int get rearSprocketTeeth => _rearSprocketTeeth;
@@ -276,6 +279,11 @@ class BikeModel extends ChangeNotifier {
 
   set gravity(double gravity) {
     _gravity = gravity;
+    notifyListeners();
+  }
+
+  set launchControlRpm(int launchControlRpm) {
+    _launchControlRpm = launchControlRpm;
     notifyListeners();
   }
 }

@@ -419,6 +419,13 @@ class EngineInfoCard extends StatelessWidget {
                           labelText: 'Max Torque (Nm)',
                         ),
                       ),
+                      IntFormField(
+                        onChanged: (value) => bikeModel.launchControlRpm = value,
+                        initialValue: '${bikeModel.launchControlRpm}',
+                        decoration: const InputDecoration(
+                          labelText: 'Launch Control RPM',
+                        ),
+                      ),
                       DoubleFormField(
                         onChanged: (value) => bikeModel.powerLossInTransmission = value,
                         initialValue: '${bikeModel.powerLossInTransmission}',
