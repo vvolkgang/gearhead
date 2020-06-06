@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
@@ -132,6 +134,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       charts.LinePointHighlighter(symbolRenderer: CustomCircleSymbolRenderer(context, 'torqueChart'))
                     ]),
               ),
+              const Divider(),
+              SpeedTimeChart(),
+              const Divider(),
+              DistanceTimeChart(),
+              const Divider(),
               BikeDataTable(),
               const Padding(
                 padding: EdgeInsets.only(bottom: 200),
@@ -566,7 +573,9 @@ class BikeDataTable extends StatelessWidget {
         DataCell(Text(bikeModel.getSpeedForRpmAndGear(key, gear).toStringAsFixed(1))),
         DataCell(Text(value.meanAccel.toStringAsFixed(1))),
         DataCell(Text(value.time.toStringAsFixed(1))),
+        DataCell(Text(value.timeAggregate.toStringAsFixed(1))),
         DataCell(Text(value.distance.toStringAsFixed(1))),
+        DataCell(Text(value.distanceAggregate.toStringAsFixed(1))),
       ]));
     });
 
@@ -606,7 +615,19 @@ class BikeDataTable extends StatelessWidget {
             ),
             DataColumn(
               label: Text(
+                'Aggregated Time (s)',
+                style: TextStyle(fontStyle: FontStyle.italic),
+              ),
+            ),
+            DataColumn(
+              label: Text(
                 'Distance (m)',
+                style: TextStyle(fontStyle: FontStyle.italic),
+              ),
+            ),
+            DataColumn(
+              label: Text(
+                'Aggregated Distance (s)',
                 style: TextStyle(fontStyle: FontStyle.italic),
               ),
             ),
@@ -615,5 +636,87 @@ class BikeDataTable extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+class SpeedTimeChart extends StatelessWidget {
+  List<charts.Series<Point, double>> _getSeries(BikeModel bike) => [
+        charts.Series<Point, double>(
+          id: 'Speed Plot',
+          domainFn: (Point data, _) => data.x.toDouble(),
+          measureFn: (Point data, _) => data.y,
+          data: bike.createSpeedTimeList(),
+        )
+      ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: <Widget>[
+      const Text('Speed (km/h) vs Time (s)'),
+      SizedBox(
+        height: 300,
+        child: Consumer<BikeModel>(
+          builder: (context, bikeModel, child) {
+            return charts.LineChart(
+              _getSeries(bikeModel),
+              animate: true,
+              defaultRenderer: charts.LineRendererConfig(includeArea: true, includePoints: true),
+              selectionModels: [
+                charts.SelectionModelConfig(changedListener: (charts.SelectionModel model) {
+                  if (model.hasDatumSelection) {
+                    ToolTipMgr.setSelectedValue('speedTimeChart', model.selectedSeries[0].measureFn(model.selectedDatum[0].index).toString());
+                  }
+                })
+              ],
+              behaviors: [
+                charts.PanAndZoomBehavior(),
+                charts.LinePointHighlighter(symbolRenderer: CustomCircleSymbolRenderer(context, 'speedTimeChart'))
+              ],
+            );
+          },
+        ),
+      ),
+    ]);
+  }
+}
+
+class DistanceTimeChart extends StatelessWidget {
+  List<charts.Series<Point, double>> _getSeries(BikeModel bike) => [
+        charts.Series<Point, double>(
+          id: 'Distance Time Plot',
+          domainFn: (Point data, _) => data.x.toDouble(),
+          measureFn: (Point data, _) => data.y,
+          data: bike.createDistanceTimeList(),
+        )
+      ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: <Widget>[
+      const Text('Distance (m) vs Time (s)'),
+      SizedBox(
+        height: 300,
+        child: Consumer<BikeModel>(
+          builder: (context, bikeModel, child) {
+            return charts.LineChart(
+              _getSeries(bikeModel),
+              animate: true,
+              defaultRenderer: charts.LineRendererConfig(includeArea: true, includePoints: true),
+              selectionModels: [
+                charts.SelectionModelConfig(changedListener: (charts.SelectionModel model) {
+                  if (model.hasDatumSelection) {
+                    ToolTipMgr.setSelectedValue('distanceTimeChart', model.selectedSeries[0].measureFn(model.selectedDatum[0].index).toString());
+                  }
+                })
+              ],
+              behaviors: [
+                charts.PanAndZoomBehavior(),
+                charts.LinePointHighlighter(symbolRenderer: CustomCircleSymbolRenderer(context, 'distanceTimeChart'))
+              ],
+            );
+          },
+        ),
+      ),
+    ]);
   }
 }
