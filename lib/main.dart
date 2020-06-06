@@ -100,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: 300,
                 child: charts.LineChart(bikeModel.createSpeedPerRpmData(),
                     animate: true,
-                    defaultRenderer: charts.LineRendererConfig(includeArea: false, stacked: true, roundEndCaps: false),
+                    defaultRenderer: charts.LineRendererConfig(includeArea: true),
                     selectionModels: [
                       charts.SelectionModelConfig(changedListener: (charts.SelectionModel model) {
                         if (model.hasDatumSelection) {
@@ -119,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: 300,
                 child: charts.LineChart(bikeModel.createTorquePerRpmData(),
                     animate: true,
-                    defaultRenderer: charts.LineRendererConfig(includeArea: false, stacked: true, roundEndCaps: true),
+                    defaultRenderer: charts.LineRendererConfig(includeArea: true, includePoints: true),
                     selectionModels: [
                       charts.SelectionModelConfig(changedListener: (charts.SelectionModel model) {
                         if (model.hasDatumSelection) {

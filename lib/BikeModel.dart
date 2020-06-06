@@ -104,10 +104,11 @@ class BikeModel extends ChangeNotifier {
       ((_rimSize * 0.0254 / 2) + ((_tireWidth * _tireAspectRation) / 100000)) *
       3.6;
 
-  double getSpeedForRpmAndGear(int rpm, int gear) =>
-      (rpm * 2.0 * pi / 60 / (_gearing[0] * _gearing[gear] * finalDrive)) *
-      ((_rimSize * 0.0254 / 2) + ((_tireWidth * _tireAspectRation) / 100000)) *
-      3.6;
+  double getSpeedForRpmAndGear(int rpm, int gear) => rpm == 0
+      ? 0
+      : (rpm * 2.0 * pi / 60 / (_gearing[0] * _gearing[gear] * finalDrive)) *
+          ((_rimSize * 0.0254 / 2) + ((_tireWidth * _tireAspectRation) / 100000)) *
+          3.6;
 
   double getSpeedMeterPerSec(double speedInKmh) => speedInKmh * 1000 / 3600;
   double getSpeedMeterPerSecFromRpm(int rpm, int gear) => getSpeedMeterPerSec(getSpeedForRpmAndGear(rpm, gear));
@@ -145,7 +146,7 @@ class BikeModel extends ChangeNotifier {
 
   Map<int, AccelData> createMeanAccelerationForGear(int gear) {
     final meanAccelMap = <int, AccelData>{};
-    meanAccelMap[0] = AccelData(0,0,0);
+    meanAccelMap[0] = AccelData(0, 0, 0);
     //TODO currently we're using the torque values sampling rate. After implementing torque values lerp this can be improved to configurable (thus more accurate) sampling rate
 
     for (var i = 1; i < _torque.length; i++) {
@@ -156,7 +157,6 @@ class BikeModel extends ChangeNotifier {
       final time = calcTimeWithResistance(prevRpm, currRpm, gear, macc);
       final dist = calcDistance(prevRpm, currRpm, gear, macc, time);
 
-      
       meanAccelMap[currRpm] = AccelData(macc, time, dist);
     }
 
@@ -174,37 +174,21 @@ class BikeModel extends ChangeNotifier {
       currRpm < _launchControlRpm ? 0 : .5 * macc * pow(time, 2) + getSpeedForRpmAndGear(prevRpm, gear) * time;
 
   List<charts.Series<SpeedForRpm, int>> createSpeedPerRpmData() {
-    //TODO put it in different series so there's cuts between gears and create a cycle for this.
-    final List<SpeedForRpm> dataList = <SpeedForRpm>[];
-    dataList.add(SpeedForRpm(0, 0));
-    dataList.add(SpeedForRpm(getMaxSpeedForGear(1), _maxRpm));
+    final List<charts.Series<SpeedForRpm, int>> dataList2 = <charts.Series<SpeedForRpm, int>>[];
 
-    dataList.add(SpeedForRpm(getSpeedForRpmAndGear(gearChangeRpm(1, 2), 2), gearChangeRpm(1, 2)));
-    dataList.add(SpeedForRpm(getMaxSpeedForGear(2), _maxRpm));
-
-    dataList.add(SpeedForRpm(getSpeedForRpmAndGear(gearChangeRpm(2, 3), 3), gearChangeRpm(2, 3)));
-    dataList.add(SpeedForRpm(getMaxSpeedForGear(3), _maxRpm));
-
-    dataList.add(SpeedForRpm(getSpeedForRpmAndGear(gearChangeRpm(3, 4), 4), gearChangeRpm(3, 4)));
-    dataList.add(SpeedForRpm(getMaxSpeedForGear(4), _maxRpm));
-
-    dataList.add(SpeedForRpm(getSpeedForRpmAndGear(gearChangeRpm(4, 5), 5), gearChangeRpm(4, 5)));
-    dataList.add(SpeedForRpm(getMaxSpeedForGear(5), _maxRpm));
-
-    dataList.add(SpeedForRpm(getSpeedForRpmAndGear(gearChangeRpm(5, 6), 6), gearChangeRpm(5, 6)));
-    dataList.add(SpeedForRpm(getMaxSpeedForGear(6), _maxRpm));
-    // for (var i = 1; i > _gearing.length; i++) {
-    //   dataList.add(SpeedForRpm(getMaxSpeedForGear(i), gearChangeRpm(i - 1, i)));
-    // }
-
-    return [
-      charts.Series<SpeedForRpm, int>(
+    for (var i = 0; i < _gearing.length - 1; i++) {
+      dataList2.add(charts.Series<SpeedForRpm, int>(
         id: 'Speed Plot',
         domainFn: (SpeedForRpm data, _) => data.speed.toInt(),
         measureFn: (SpeedForRpm data, _) => data.rpm,
-        data: dataList,
-      )
-    ];
+        data: [
+          SpeedForRpm(getSpeedForRpmAndGear(gearChangeRpm(i, i + 1), i + 1), gearChangeRpm(i, i + 1)),
+          SpeedForRpm(getMaxSpeedForGear(i + 1), _maxRpm)
+        ],
+      ));
+    }
+
+    return dataList2;
   }
 
   List<charts.Series<TorqueForRpm, int>> createTorquePerRpmData() {
