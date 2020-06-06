@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'Extensions.dart';
 
 class SpeedForRpm {
   final double speed;
@@ -21,8 +22,10 @@ class AccelData {
   final double meanAccel;
   final double distance;
   final double time;
+  final double timeAggregate; //aggregated time with resistance
+  final double distanceAggregate; //aggregated time with resistance
 
-  AccelData(this.meanAccel, this.time, this.distance);
+  AccelData(this.meanAccel, this.time, this.distance, this.timeAggregate, this.distanceAggregate);
 }
 
 /// Motorbike gearing model
@@ -64,6 +67,7 @@ class BikeModel extends ChangeNotifier {
   double _gravity = 9.81;
   int _launchControlRpm = 6000;
 
+  Map<int, double> get torqueMap => _torque;
   int get launchControlRpm => _launchControlRpm;
 
   int get frontSprocketTeeth => _frontSprocketTeeth;
@@ -136,7 +140,7 @@ class BikeModel extends ChangeNotifier {
           pow(getRadPerSec(rpm), 3) -
       rollResistanceForce * getRadPerSec(rpm);
 
-  double meanAcceleration(int prevRpm, int currRpm, int gear) {
+  double calcMeanAcceleration(int prevRpm, int currRpm, int gear) {
     final b = getTorqueGainConstant(prevRpm, currRpm);
     final c = getTorqueIncrementConstant(prevRpm, currRpm);
 
@@ -146,18 +150,23 @@ class BikeModel extends ChangeNotifier {
 
   Map<int, AccelData> createMeanAccelerationForGear(int gear) {
     final meanAccelMap = <int, AccelData>{};
-    meanAccelMap[0] = AccelData(0, 0, 0);
+    meanAccelMap[0] = AccelData(0, 0, 0, 0, 0);
     //TODO currently we're using the torque values sampling rate. After implementing torque values lerp this can be improved to configurable (thus more accurate) sampling rate
+
+    double timeAggregate = 0;
+    double distanceAggregate = 0;
 
     for (var i = 1; i < _torque.length; i++) {
       final prevRpm = _torque.keys.elementAt(i - 1);
       final currRpm = _torque.keys.elementAt(i);
 
-      final macc = meanAcceleration(prevRpm, currRpm, gear);
+      final macc = calcMeanAcceleration(prevRpm, currRpm, gear);
       final time = calcTimeWithResistance(prevRpm, currRpm, gear, macc);
       final dist = calcDistance(prevRpm, currRpm, gear, macc, time);
 
-      meanAccelMap[currRpm] = AccelData(macc, time, dist);
+      timeAggregate += currRpm >= _launchControlRpm ? time : 0; // only count after launch
+      distanceAggregate += dist;
+      meanAccelMap[currRpm] = AccelData(macc, time, dist, timeAggregate, distanceAggregate);
     }
 
     return meanAccelMap;
@@ -203,6 +212,33 @@ class BikeModel extends ChangeNotifier {
         data: dataList,
       )
     ];
+  }
+
+  List<Point> createSpeedTimeList() {
+    final list = <Point>[];
+    list.add(const Point(0, 0));
+    for (var i = 1; i < _gearing.length - 1; i++) {
+      final x = createMeanAccelerationForGear(i).values.last.timeAggregate.toPrecision(1);
+      final y = getMaxSpeedForGear(i).toPrecision(1);
+
+      list.add(Point(x, y));
+    }
+
+    return list;
+  }
+
+  List<Point> createDistanceTimeList() {
+    final list = <Point>[];
+    list.add(const Point(0, 0));
+    for (var i = 1; i < _gearing.length - 1; i++) {
+      final macc = createMeanAccelerationForGear(i);
+      final x = macc.values.last.timeAggregate.toPrecision(1);
+      final y = macc.values.last.distanceAggregate.toPrecision(1);
+
+      list.add(Point(x, y));
+    }
+
+    return list;
   }
 
   void setGearing(int gear, double gearing) {
